@@ -62,47 +62,55 @@ const itemQuantity = document.getElementById("quantity")
     }
 
     let cart = []
+    let alreadyInCart = []
+    alreadyInCart = localStorage.getItem("product")
+    alreadyInCart = JSON.parse(alreadyInCart)
 
-   
     function addItemsToCart() {
 
-        if (cart === null){
-        cart.push(new Item($productId, productColors.value, itemQuantity.value))
-        localStorage.setItem("product", JSON.stringify(cart))
-        return console.log(localStorage)}
-        else
-        {
-        alreadyInCart = localStorage.getItem("product")
-        alreadyInCart = JSON.parse(alreadyInCart)
-        console.log(alreadyInCart)
- 
+        if (alreadyInCart){
+    
+
         function findId(product) {
             product.id === $productId
             return product.color === productColors.value
         } //fonctionne 
 
         let redundantProduct = alreadyInCart.find(findId)
-        console.log(redundantProduct) //fonctionne
-
-        let i = alreadyInCart.findIndex(findId)
-        console.log(i)}
-
-            if (redundantProduct) { //condition fonctionne
-                    let quantityAIng = parseInt(redundantProduct.quantity)
-                    let quantityBIng = parseInt(itemQuantity.value)
-                    alreadyInCart[i] = {id: $productId, color: productColors.value, quantity: quantityAIng + quantityBIng}
-                    cart = alreadyInCart
-                    localStorage.clear() 
-                    localStorage.setItem("product", JSON.stringify(cart))
-                    return console.log(localStorage)
-                }
+        console.log(redundantProduct)
         
-         else {
-        cart.push(new Item($productId, productColors.value, itemQuantity.value))
-        localStorage.setItem("product", JSON.stringify(cart))
-        return console.log(localStorage)
+            if(redundantProduct){               
+            let i = alreadyInCart.findIndex(findId)
+            console.log(i)
+            let quantityAIng = parseInt(redundantProduct.quantity)
+            let quantityBIng = parseInt(itemQuantity.value)
+            alreadyInCart[i] = {id: $productId, color: productColors.value, quantity: quantityAIng + quantityBIng}
+            cart = alreadyInCart
+            localStorage.setItem("product", JSON.stringify(cart))
+            console.log(localStorage)}
+
+            else { function addNewProduct() {
+                cart.push(new Item($productId, productColors.value, itemQuantity.value))
+                localStorage.setItem("product", JSON.stringify(cart))
+                console.log(localStorage) }
+                addNewProduct()
+                location.reload()
+                }
+    
+            }
+         else { function addNewProduct() {
+                cart.push(new Item($productId, productColors.value, itemQuantity.value))
+                localStorage.setItem("product", JSON.stringify(cart))
+                console.log(localStorage) }
+                addNewProduct()
+                location.reload()
     }
-    }
+}
+    
+    
+    
+    
+    
 
         // function saveCart(){let stringified = JSON.stringify(cart);
         //         return localStorage.setItem(prod, stringified)}
@@ -116,4 +124,6 @@ const itemQuantity = document.getElementById("quantity")
 
 
 addButton.addEventListener("click", addItemsToCart)
+localStorage.clear()
+cart
 
