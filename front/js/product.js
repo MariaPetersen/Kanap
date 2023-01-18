@@ -107,23 +107,10 @@ const itemQuantity = document.getElementById("quantity")
     }
 }
     
-    
-    
-    
-    
-
-        // function saveCart(){let stringified = JSON.stringify(cart);
-        //         return localStorage.setItem(prod, stringified)}
-
-        // function getCart (prod) {
-        //         let productsInCart = JSON.parse(localStorage.getItem(prod))
-        //     return cart = productsInCart}
-
 
 //Add to cart functions
 
 
 addButton.addEventListener("click", addItemsToCart)
-localStorage.clear()
-cart
+
 
