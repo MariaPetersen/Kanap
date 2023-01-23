@@ -14,37 +14,38 @@ const $productId = productURL.searchParams.get('id')
 //Retrieving data from API and adding it to DOM
 function retrieveProductData() {
     fetch("http://localhost:3000/api/products")
-    .then(function(response){
-        if(response.ok){
-            return response.json()}
-        })
-    .then(function(productData){
-        product = productData.find(function(product){product = product._id === $productId; return product})
-        
-        itemImage.innerHTML = `<img src="${product.imageUrl}" alt="${product.altTxt}"/>`
-        
-        productTitle.innerHTML = product.name
-        
-        productPrice.innerHTML = product.price 
-        
-        productDescription.innerHTML = product.description 
-        
-        function insertOptions(){
-            for (let i=0 ; i < product.colors.length ; i++) {
-                colors.insertAdjacentHTML('beforeend', `<option value='${product.colors[i]}'>${product.colors[i]}</option>`)
+        .then(function (response) {
+            if (response.ok) {
+                return response.json()
             }
-        }
-        insertOptions()
-    })
-    .catch(function(error){
-      console.log(Error)
-    })
+        })
+        .then(function (productData) {
+            product = productData.find(function (product) { product = product._id === $productId; return product })
+
+            itemImage.innerHTML = `<img src="${product.imageUrl}" alt="${product.altTxt}"/>`
+
+            productTitle.innerHTML = product.name
+
+            productPrice.innerHTML = product.price
+
+            productDescription.innerHTML = product.description
+
+            function insertOptions() {
+                for (let i = 0; i < product.colors.length; i++) {
+                    colors.insertAdjacentHTML('beforeend', `<option value='${product.colors[i]}'>${product.colors[i]}</option>`)
+                }
+            }
+            insertOptions()
+        })
+        .catch(function (error) {
+            console.log(Error)
+        })
 }
 
 retrieveProductData()
 
 //Change product color value when option selected
-productColors.addEventListener('change', function(e){
+productColors.addEventListener('change', function (e) {
     document.querySelector('option').setAttribute("value", productColors.value)
     e.preventDefault()
 })
@@ -55,21 +56,27 @@ const itemQuantity = document.getElementById("quantity")
 
 //Cart object
 
-    function Item (id, color, quantity) {
-        this.id = id;
-        this.color = color;
-        this.quantity = quantity
-    }
+function Item(id, color, quantity) {
+    this.id = id;
+    this.color = color;
+    this.quantity = quantity
+}
 
-    let cart = []
-    let alreadyInCart = []
+let cart = []
+let alreadyInCart = []
+
+function addNewProduct(array) {
+    array.push(new Item($productId, productColors.value, itemQuantity.value))
+    localStorage.setItem("product", JSON.stringify(array))
+    console.log(localStorage)
+}
+
+function addItemsToCart() {
+    
     alreadyInCart = localStorage.getItem("product")
     alreadyInCart = JSON.parse(alreadyInCart)
 
-    function addItemsToCart() {
-
-        if (alreadyInCart){
-    
+    if (alreadyInCart) {
 
         function findId(product) {
             product.id === $productId
@@ -78,39 +85,31 @@ const itemQuantity = document.getElementById("quantity")
 
         let redundantProduct = alreadyInCart.find(findId)
         console.log(redundantProduct)
-        
-            if(redundantProduct){               
+
+        if (redundantProduct) {
             let i = alreadyInCart.findIndex(findId)
             console.log(i)
             let quantityAIng = parseInt(redundantProduct.quantity)
             let quantityBIng = parseInt(itemQuantity.value)
-            alreadyInCart[i] = {id: $productId, color: productColors.value, quantity: quantityAIng + quantityBIng}
+            alreadyInCart[i] = { id: $productId, color: productColors.value, quantity: quantityAIng + quantityBIng }
             cart = alreadyInCart
             localStorage.setItem("product", JSON.stringify(cart))
-            console.log(localStorage)}
+            console.log(localStorage)
+        }
 
-            else { function addNewProduct() {
-                cart.push(new Item($productId, productColors.value, itemQuantity.value))
-                localStorage.setItem("product", JSON.stringify(cart))
-                console.log(localStorage) }
-                addNewProduct()
-                location.reload()
-                }
-    
-            }
-         else { function addNewProduct() {
-                cart.push(new Item($productId, productColors.value, itemQuantity.value))
-                localStorage.setItem("product", JSON.stringify(cart))
-                console.log(localStorage) }
-                addNewProduct()
-                location.reload()
+        else {
+            addNewProduct(cart)
+        }
+
+    }
+    else {
+        addNewProduct(cart)
     }
 }
-    
+
 
 //Add to cart functions
 
 
 addButton.addEventListener("click", addItemsToCart)
-
 
