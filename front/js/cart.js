@@ -113,20 +113,27 @@ function retrieveProductData() {
                                     let productId = productArticle.getAttribute("data-id")
                                     return productId
                                 }
+
+                                function findProductColor(element){
+                                    let productArticle = element[i].closest("article.cart_item")
+                                    let productColor = productArticle.getAttribute("data-color")
+                                    return productColor
+                                }
                                 let productId = findProductId(inputQuantity)
+                                let productColor = findProductColor(inputQuantity)
 
                                 let cart = localStorage.getItem("product")
                                 cart = JSON.parse(cart)
                                 
-                                function findItemInCart(productId, cart){
+                                function findItemInCart(productId, productColor, cart){
         
                                     for (let i=0; i < cart.length; i++){
-                                        if(productId === cart[i].id){
+                                        if(productId === cart[i].id && productColor === cart[i].color){
                                             return cart[i]
                                         }
                                     }
                                 }
-                                let cartItem = findItemInCart(productId, cart)
+                                let cartItem = findItemInCart(productId, productColor, cart)
 
                                 cartItem.quantity = inputQuantity[i].value
 
@@ -148,7 +155,6 @@ function retrieveProductData() {
                         console.log(thisButton)
                         function findProductArticle(deleteButton){
                             let productArticle = deleteButton[i].closest("article.cart_item")
-                            let productId = productArticle.getAttribute("data-id")
                             return productArticle
                         }
                         let productArticle = findProductArticle(deleteButton)
@@ -158,12 +164,13 @@ function retrieveProductData() {
                             (event)=>{
                                 
                                 let productId = productArticle.getAttribute("data-id")
+                                let productColor = productArticle.getAttribute("data-color")
                                 productArticle.remove()
 
                                 function findIndexInCart(productId, cart){
         
                                     for (let i=0; i < cart.length; i++){
-                                        if(productId === cart[i].id){
+                                        if(productId === cart[i].id && productColor === cart[i].color){
                                             return i
                                         }
                                     }
@@ -183,7 +190,6 @@ function retrieveProductData() {
             }   
         )
 }
-
 retrieveProductData()
 
 
