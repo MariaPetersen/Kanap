@@ -92,18 +92,25 @@ function addItemsToCart() {
             let quantityAIng = parseInt(redundantProduct.quantity)
             let quantityBIng = parseInt(itemQuantity.value)
             alreadyInCart[i] = { id: $productId, color: productColors.value, quantity: quantityAIng + quantityBIng }
-            cart = alreadyInCart
+            let cart = alreadyInCart
             localStorage.setItem("product", JSON.stringify(cart))
             console.log(localStorage)
         }
 
         else {
+            let cart = alreadyInCart
             addNewProduct(cart)
+            // cart.push(new Item($productId, productColors.value, itemQuantity.value))
+            // localStorage.setItem("product", JSON.stringify(cart))
+            // console.log(localStorage)
         }
 
     }
     else {
         addNewProduct(cart)
+        // cart.push(new Item($productId, productColors.value, itemQuantity.value))
+        // localStorage.setItem("product", JSON.stringify(cart))
+        // console.log(localStorage)
     }
 }
 
