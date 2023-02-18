@@ -6,68 +6,6 @@ const inputQuantity = document.getElementsByName('itemQuantity')
 let cart = localStorage.getItem("product")
                 cart = JSON.parse(cart)
 
-//Functions for change quantity 
-
-function findProductColor(element, i){
-    let productArticle = element[i].closest("article.cart_item")
-    let productColor = productArticle.getAttribute("data-color")
-    return productColor
-}
-function findProductId(element, i){
-    let productArticle = element[i].closest("article.cart_item")
-    let productId = productArticle.getAttribute("data-id")
-    return productId
-}
-
-const findInput = (index, element) => {
-    let input = element[index].closest('input')
-    return input
-}
-
-const setQuantity = (input, index, element) => {
-    input.setAttribute(
-        "value",
-        element[index].value
-    )
-    let thisParagraph = input.previousElementSibling
-    thisParagraph.textContent = `Qté : ${element[index].value}`
-}
-
-function findItemInCart(id, color, array){
-
-    for (let i=0; i < cart.length; i++){
-        if(id === array[i].id && color === array[i].color){
-            return array[i]
-        }
-    }
-}
-
-const updateStorageQuantity = (item, array, element, index) => {
-    item.quantity = element[index].value
-    localStorage.setItem("product", JSON.stringify(array))
-    console.log(localStorage)
-}
-
-function changeQuantity(){    
-    for (let i=0; i < inputQuantity.length; i++){
-    
-        inputQuantity[i].addEventListener(
-            "change",
-            (event) =>{
-                event.preventDefault()
-                let thisInput = findInput(i, inputQuantity)
-                setQuantity(thisInput, i, inputQuantity)
-
-                let productId = findProductId(inputQuantity, i)
-                let productColor = findProductColor(inputQuantity, i)
-                let cartItem = findItemInCart(productId, productColor, cart)
-
-                updateStorageQuantity(cartItem, cart, inputQuantity, i)
-            }
-        )
-    }
-}
-
 //Function to find product in API 
 function searchProduct(proId, productData){
     for (let i=0; i < productData.length; i++){
@@ -76,7 +14,7 @@ function searchProduct(proId, productData){
     }
 }
 
-//Functions to add items to cart 
+//Functions to add cart items to page
 function addImage(parent, product){
     const imageItem = parent.appendChild(document.createElement('div'))
     imageItem.classList.add("cart__item__img")
@@ -124,6 +62,97 @@ function addArticle(items, product, id, color, quantity){
     addSettings(itemContent, quantity)
 }
 
+//Function to calculate total
+function calculateTotalPrice (product, item){
+    let quantity = parseInt(product.quantity)
+    let price = parseInt(item.price)
+    let totalPrice = price * quantity
+
+    return totalPrice
+}
+
+function insertTotalPrice (totalPriceAll, totalQuantityAll){
+    const totalElement = document.getElementById("totalPrice")
+    const totalQuantityElement = document.getElementById("totalQuantity")
+    totalElement.innerHTML = totalPriceAll
+    totalQuantityElement.innerHTML = totalQuantityAll
+}
+
+function addTotal (cart, productData, totalPriceAll, totalQuantityAll){
+    for(let product of cart){
+        let productN = searchProduct(product.id, productData)
+        let totalPrice = calculateTotalPrice(product, productN)
+        totalPriceAll = totalPriceAll + totalPrice
+        totalQuantityAll = parseInt(totalQuantityAll) + parseInt(product.quantity)  
+    }
+    insertTotalPrice(totalPriceAll, totalQuantityAll)
+}
+//Functions for change quantity 
+
+function findProductColor(element, i){
+    let productArticle = element[i].closest("article.cart_item")
+    let productColor = productArticle.getAttribute("data-color")
+    return productColor
+}
+function findProductId(element, i){
+    let productArticle = element[i].closest("article.cart_item")
+    let productId = productArticle.getAttribute("data-id")
+    return productId
+}
+
+const findInput = (index, element) => {
+    console.log(index)
+    console.log(element)
+    let input = element[index].closest('input')
+    return input
+}
+
+const setQuantity = (input) => {
+    input.setAttribute(
+        "value",
+        input.value
+    )
+    let thisParagraph = input.previousElementSibling
+    thisParagraph.textContent = `Qté : ${input.value}`
+}
+
+function findItemInCart(id, color, array){
+
+    for (let i=0; i < cart.length; i++){
+        if(id === array[i].id && color === array[i].color){
+            return array[i]
+        }
+    }
+}
+
+const updateStorageQuantity = (item, array, input) => {
+    item.quantity = input.value
+    localStorage.setItem("product", JSON.stringify(array))
+    console.log(localStorage)
+}
+
+function changeQuantity(inputQuantity, productData, totalPriceAll, totalQuantityAll){    
+    for (let i=0; i < inputQuantity.length; i++){
+        let thisInput = findInput(i, inputQuantity)
+        let productId = findProductId(inputQuantity, i)
+        let productColor = findProductColor(inputQuantity, i)
+        thisInput.addEventListener(
+            "change",
+            (event) =>{
+                event.preventDefault()
+                // let thisInput = findInput(i, inputQuantity)
+                setQuantity(thisInput)
+
+                
+                let cartItem = findItemInCart(productId, productColor, cart)
+
+                updateStorageQuantity(cartItem, cart, thisInput)
+                addTotal (cart, productData, totalPriceAll, totalQuantityAll)
+            }
+        )
+    }
+}
+
 //Functions for deleting item 
 const findButton = (element, index)=>{
     let button = element[index].closest("p")
@@ -151,7 +180,7 @@ const removeElementFromStorage = (cart, index) => {
     localStorage.setItem("product", JSON.stringify(cart))
 }
 
-function deleteItem(){
+function deleteItem(productData, totalPriceAll, totalQuantityAll){
     const deleteButton = document.querySelectorAll(".deleteItem")
 
     for(let i=0;i<deleteButton.length;i++){
@@ -168,7 +197,8 @@ function deleteItem(){
                 removeElementFromStorage(cart, cartIndex)
             
                 productArticle.remove()
-                changeQuantity()
+                changeQuantity(inputQuantity, productData, totalPriceAll, totalQuantityAll)
+                addTotal (cart, productData, totalPriceAll, totalQuantityAll)
             }
         )
     }
@@ -184,23 +214,20 @@ function retrieveProductData() {
 
         .then(
             function addProducts(productData) {
-
+                
                 for(let product of cart){
                     let productN = searchProduct(product.id, productData)
                     addArticle(cartItems, productN, product.id, product.color, product.quantity)
+
                 }
+                let totalPriceAll = 0
+                let totalQuantityAll = 0
+                addTotal(cart, productData, totalPriceAll, totalQuantityAll)
+                changeQuantity(inputQuantity, productData, totalPriceAll, totalQuantityAll)              
+                deleteItem(productData, totalPriceAll, totalQuantityAll)
             }
         )
 
-        .then(
-            function changeSettings(){
-
-                changeQuantity()
-                
-                deleteItem()
-            }   
-        )
-        
         .catch(
             function (error) {
             console.log(Error)
