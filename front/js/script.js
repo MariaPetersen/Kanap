@@ -1,3 +1,20 @@
+const retrieveProductData = () => fetch("http://localhost:3000/api/products")
+.then(function(res){
+    if (res.ok){
+        return res.json();
+    }
+})
+.then(function(data){
+    for (product of data){          
+        createProductInstance(items, product)
+    }
+})
+.catch(function(err){
+    console.log("Error")
+})
+   
+retrieveProductData()
+
 //Item variable
 const items = document.getElementById('items')
 
@@ -31,21 +48,3 @@ const createProductDescription = (productArticle, product) => {
     productDescription.classList.add("productDescription")
 }
 
-
-//Function for calling API
-const retrieveProductData = () => fetch("http://localhost:3000/api/products")
-.then(function(res){
-    if (res.ok){
-        return res.json();
-    }
-})
-.then(function(data){
-    for (product of data){          
-        createProductInstance(items, product)
-    }
-})
-.catch(function(err){
-    console.log("Error")
-})
-   
-retrieveProductData()

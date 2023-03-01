@@ -1,3 +1,34 @@
+function retrieveProductData() {
+    fetch("http://localhost:3000/api/products")
+        .then(function (response) {
+            if (response.ok) {
+                return response.json()
+            }
+        })
+
+        .then(
+            function addProducts(productData) {
+                
+                for(let product of cart){
+                    let productN = searchProduct(product.id, productData)
+                    addArticle(cartItems, productN, product.id, product.color, product.quantity)
+
+                }
+                let totalPriceAll = 0
+                let totalQuantityAll = 0
+                addTotal(cart, productData, totalPriceAll, totalQuantityAll)
+                changeQuantity(inputQuantity, productData, totalPriceAll, totalQuantityAll)              
+                deleteItem(productData, totalPriceAll, totalQuantityAll)
+            }
+        )
+
+        .catch(
+            function (error) {
+            console.log(Error)
+            }
+        )
+}
+retrieveProductData()
 
 //DOM elements
 const cartItems = document.getElementById("cart__items")
@@ -51,7 +82,6 @@ function addSettings(parent, quant){
 }
 
 function addArticle(items, product, id, color, quantity){
-
     let article = items.appendChild(document.createElement('article'))
     article.classList.add("cart_item")
     article.setAttribute('data-id', id)
@@ -62,12 +92,11 @@ function addArticle(items, product, id, color, quantity){
     addSettings(itemContent, quantity)
 }
 
-//Function to calculate total
+//Functions to calculate total
 function calculateTotalPrice (product, item){
     let quantity = parseInt(product.quantity)
     let price = parseInt(item.price)
     let totalPrice = price * quantity
-
     return totalPrice
 }
 
@@ -87,13 +116,14 @@ function addTotal (cart, productData, totalPriceAll, totalQuantityAll){
     }
     insertTotalPrice(totalPriceAll, totalQuantityAll)
 }
-//Functions for change quantity 
+//Functions for changing quantity 
 
 function findProductColor(element, i){
     let productArticle = element[i].closest("article.cart_item")
     let productColor = productArticle.getAttribute("data-color")
     return productColor
 }
+
 function findProductId(element, i){
     let productArticle = element[i].closest("article.cart_item")
     let productId = productArticle.getAttribute("data-id")
@@ -101,8 +131,6 @@ function findProductId(element, i){
 }
 
 const findInput = (index, element) => {
-    console.log(index)
-    console.log(element)
     let input = element[index].closest('input')
     return input
 }
@@ -117,8 +145,7 @@ const setQuantity = (input) => {
 }
 
 function findItemInCart(id, color, array){
-
-    for (let i=0; i < cart.length; i++){
+    for (let i=0; i < array.length; i++){
         if(id === array[i].id && color === array[i].color){
             return array[i]
         }
@@ -128,7 +155,6 @@ function findItemInCart(id, color, array){
 const updateStorageQuantity = (item, array, input) => {
     item.quantity = input.value
     localStorage.setItem("product", JSON.stringify(array))
-    console.log(localStorage)
 }
 
 function changeQuantity(inputQuantity, productData, totalPriceAll, totalQuantityAll){    
@@ -140,12 +166,8 @@ function changeQuantity(inputQuantity, productData, totalPriceAll, totalQuantity
             "change",
             (event) =>{
                 event.preventDefault()
-                // let thisInput = findInput(i, inputQuantity)
                 setQuantity(thisInput)
-
-                
                 let cartItem = findItemInCart(productId, productColor, cart)
-
                 updateStorageQuantity(cartItem, cart, thisInput)
                 addTotal (cart, productData, totalPriceAll, totalQuantityAll)
             }
@@ -176,7 +198,6 @@ function findIndexInCart(article, cart){
 
 const removeElementFromStorage = (cart, index) => {
     cart.splice(index, 1)
-    console.log(cart)
     localStorage.setItem("product", JSON.stringify(cart))
 }
 
@@ -204,37 +225,214 @@ function deleteItem(productData, totalPriceAll, totalQuantityAll){
     }
 }   
 
-function retrieveProductData() {
-    fetch("http://localhost:3000/api/products")
-        .then(function (response) {
-            if (response.ok) {
-                return response.json()
+//ORDER FORM 
+
+//DOM elements
+
+const firstName = document.getElementById("firstName")
+const lastName = document.getElementById("lastName")
+const address = document.getElementById("address")
+const city = document.getElementById("city")
+const email = document.getElementById("email")
+
+//RegEx
+
+const regexOnlyText = /^[a-zA-ZÀ-ú\-\s]+[a-zA-ZÀ-ú\-\s]+$/
+const regexEmail = /^([a-zA-Z0-9_\-\.]+)@(([a-zA-Z0-9\-]+\.)+)([a-zA-Z]{2,4})$/
+const regexAddress = /^[\d*][a-zA-Z0-9_\-\.]+/
+
+firstName.addEventListener (
+    "input", (event) => {
+        if (!regexOnlyText.test(firstName.value)){
+            console.log(regexOnlyText.test(firstName.value))
+            firstNameErrorMsg.textContent = "Le champs n'est pas valide"
+        } else {
+            firstNameErrorMsg.textContent = ""
+        }
+    }
+    )
+lastName.addEventListener(
+    "input", (event) => {
+        event.preventDefault()
+        if (!regexOnlyText.test(lastName.value)){
+            lastNameErrorMsg.textContent = "Le champs n'est pas valide"
+        }else {
+            lastNameErrorMsg.textContent = ""
+        }
+    }
+    )
+address.addEventListener (
+    "input", (event) => {
+        event.preventDefault()
+        if (!regexAddress.test(address.value)){
+            console.log(regexAddress.test(address.value))
+            addressErrorMsg.textContent = "Le champs n'est pas valide"
+        }else {
+            addressErrorMsg.textContent = ""
+        }
+    }
+    )
+city.addEventListener (
+    "input", (event) => {
+        event.preventDefault()
+        if (!regexOnlyText.test(city.value)){
+            cityErrorMsg.textContent = "Le champs n'est pas valide"
+        }else {
+            cityErrorMsg.textContent = ""
+        }
+    }
+    )
+email.addEventListener(
+    "input", (event) => {
+        event.preventDefault()
+        if (!regexEmail.test(email.value)){
+            console.log(regexEmail.test(email.value))
+            emailErrorMsg.textContent = "Le champs n'est pas valide"
+        }else {
+            emailErrorMsg.textContent = ""
+        }
+    }
+    )
+
+//ORDER 
+
+
+const order = document.getElementById("order")
+order.addEventListener(
+    "click", 
+    (event)=> {
+        event.preventDefault()
+        if (regexOnlyText.test(firstName.value)
+            && regexOnlyText.test(lastName.value)
+            && regexAddress.test(address.value)
+            && regexOnlyText.test(city.value)
+            && regexEmail.test(email.value)
+        ){
+            // const contact = createContact()
+            let productList = localStorage.getItem("product")
+            productList = JSON.parse(productList)
+            let products = []
+            for (let product of productList){
+                products.push(product.id)
             }
-        })
-
-        .then(
-            function addProducts(productData) {
-                
-                for(let product of cart){
-                    let productN = searchProduct(product.id, productData)
-                    addArticle(cartItems, productN, product.id, product.color, product.quantity)
-
+            console.log(products)
+            // const products = createProductList()
+            fetch('http://localhost:3000/api/products/order', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({   
+                    contact : {
+                        firstName : firstName.value,
+                        lastName : lastName.value,
+                        address : address.value,
+                        city : city.value,
+                        email : email.value
+                    },
+                    products : products
+                })
+            })
+            .then(function (response) {
+                if (response.ok) {
+                    return response.json()
                 }
-                let totalPriceAll = 0
-                let totalQuantityAll = 0
-                addTotal(cart, productData, totalPriceAll, totalQuantityAll)
-                changeQuantity(inputQuantity, productData, totalPriceAll, totalQuantityAll)              
-                deleteItem(productData, totalPriceAll, totalQuantityAll)
-            }
-        )
+            
+                
+            })
+            .then(function (data){
+                console.log(data.orderId)
+                let url = new URL ("http://127.0.0.1:5500/front/html/confirmation.html")
+                url.searchParams.append('orderid', data.orderId)
+                console.log(url)
+                window.location.assign(url)
+                }
+            )
+            .catch(
+                function (error) {
+                console.log(Error)
+                }
+            )
+        }
+            // sendOrder (contact, products)
+        }
 
-        .catch(
-            function (error) {
-            console.log(Error)
-            }
-        )
+)
+
+function Contact (firstName, lastName, address, city, email) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.address = address;
+    this.city = city;
+    this.email = email;
 }
-retrieveProductData()
+
+function createContact () {
+    let contact = new Contact(firstName.value, lastName.value, address.value, city.value, email.value)
+    
+    contact = JSON.stringify(contact)
+    console.log(contact)
+    return contact
+}
+
+function createProductList (){
+    let productList = localStorage.getItem("product")
+    productList = JSON.parse(productList)
+    let products = []
+    for (let product of productList){
+        products.push(product.id)
+    }
+    products = JSON.stringify(products)
+    console.log(products)
+    return products
+}
+
+function sendOrder (contact, products){
+    fetch('http://localhost:3000/api/order', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({contact, products})
+    })
+    .then(function (response) {
+        if (response.ok) {
+            return response = response.json()
+        }
+    })
+    .then (function (){console.log(response)}
+    )
+    .catch(
+        function (error) {
+        console.log(Error)
+        }
+    )
+}
+
+// fetch('http://localhost:3000/api/order', {
+//     method: 'POST',
+//     headers: {
+//         'Accept': 'application/json',
+//         'Content-Type': 'application/json',
+//     },
+//     body: contact, productList 
+// })
+
+// let result = await response.json()
+// console.log(result)
 
 
+//Request 
 
+// let response = await fetch('/article/fetch/post/user', {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json;charset=utf-8'
+//     },
+//     body: JSON.stringify(user)
+//   });
+  
+//   let result = await response.json();
+//   alert(result.message);
