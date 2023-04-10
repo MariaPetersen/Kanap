@@ -1,3 +1,4 @@
+
 function retrieveProductData() {
     fetch("http://localhost:3000/api/products")
         .then(function (response) {
@@ -8,28 +9,84 @@ function retrieveProductData() {
 
         .then(
             function addProducts(productData) {
-                
-                for(let product of cart){
-                    let productN = searchProduct(product.id, productData)
-                    addArticle(cartItems, productN, product.id, product.color, product.quantity)
+                if(cart){
+                    for(let product of cart){
+                        let productN = searchProduct(product.id, productData)
+                        addArticle(cartItems, productN, product.id, product.color, product.quantity)
 
+                    }
+                    let totalPriceAll = 0
+                    let totalQuantityAll = 0
+                    addTotal(cart, productData, totalPriceAll, totalQuantityAll)
+                    changeQuantity(inputQuantity, productData, totalPriceAll, totalQuantityAll)              
+                    deleteItem(productData, totalPriceAll, totalQuantityAll)
                 }
-                let totalPriceAll = 0
-                let totalQuantityAll = 0
-                addTotal(cart, productData, totalPriceAll, totalQuantityAll)
-                changeQuantity(inputQuantity, productData, totalPriceAll, totalQuantityAll)              
-                deleteItem(productData, totalPriceAll, totalQuantityAll)
             }
         )
-
+        
         .catch(
             function (error) {
             console.log(Error)
             }
         )
 }
+
 retrieveProductData()
 
+const order = document.getElementById("order")
+order.addEventListener(
+    "click", 
+    (event)=> {
+        event.preventDefault()
+        if (regexOnlyText.test(firstName.value)
+            && regexOnlyText.test(lastName.value)
+            && regexAddress.test(address.value)
+            && regexOnlyText.test(city.value)
+            && regexEmail.test(email.value)
+        ){
+            const products = createProductList()
+            
+            fetch('http://localhost:3000/api/products/order', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({   
+                    contact : {
+                        firstName : firstName.value,
+                        lastName : lastName.value,
+                        address : address.value,
+                        city : city.value,
+                        email : email.value
+                    },
+                    products : products
+                })
+            })
+            .then(function (response) {
+                if (response.ok) {
+                    return response.json()
+                }  
+                
+            })
+            .then(function (data){
+                let url = new URL ("http://127.0.0.1:5500/front/html/confirmation.html")
+                url.searchParams.append('orderid', data.orderId)
+                window.location.assign(url)
+                }
+            )
+            .then(function() {
+            localStorage.clear()
+            })
+            .catch(
+                function (error) {
+                console.log(Error)
+                }
+            )
+        }
+        }
+
+)
 //DOM elements
 const cartItems = document.getElementById("cart__items")
 const inputQuantity = document.getElementsByName('itemQuantity')
@@ -244,7 +301,6 @@ const regexAddress = /^[\d*][a-zA-Z0-9_\-\.]+/
 firstName.addEventListener (
     "input", (event) => {
         if (!regexOnlyText.test(firstName.value)){
-            console.log(regexOnlyText.test(firstName.value))
             firstNameErrorMsg.textContent = "Le champs n'est pas valide"
         } else {
             firstNameErrorMsg.textContent = ""
@@ -265,7 +321,6 @@ address.addEventListener (
     "input", (event) => {
         event.preventDefault()
         if (!regexAddress.test(address.value)){
-            console.log(regexAddress.test(address.value))
             addressErrorMsg.textContent = "Le champs n'est pas valide"
         }else {
             addressErrorMsg.textContent = ""
@@ -286,96 +341,14 @@ email.addEventListener(
     "input", (event) => {
         event.preventDefault()
         if (!regexEmail.test(email.value)){
-            console.log(regexEmail.test(email.value))
-            emailErrorMsg.textContent = "Le champs n'est pas valide"
+            emailErrorMsg.textContent = "Le champ n'est pas valide"
         }else {
             emailErrorMsg.textContent = ""
         }
     }
     )
 
-//ORDER 
-
-
-const order = document.getElementById("order")
-order.addEventListener(
-    "click", 
-    (event)=> {
-        event.preventDefault()
-        if (regexOnlyText.test(firstName.value)
-            && regexOnlyText.test(lastName.value)
-            && regexAddress.test(address.value)
-            && regexOnlyText.test(city.value)
-            && regexEmail.test(email.value)
-        ){
-            // const contact = createContact()
-            let productList = localStorage.getItem("product")
-            productList = JSON.parse(productList)
-            let products = []
-            for (let product of productList){
-                products.push(product.id)
-            }
-            console.log(products)
-            // const products = createProductList()
-            fetch('http://localhost:3000/api/products/order', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({   
-                    contact : {
-                        firstName : firstName.value,
-                        lastName : lastName.value,
-                        address : address.value,
-                        city : city.value,
-                        email : email.value
-                    },
-                    products : products
-                })
-            })
-            .then(function (response) {
-                if (response.ok) {
-                    return response.json()
-                }
-            
-                
-            })
-            .then(function (data){
-                console.log(data.orderId)
-                let url = new URL ("http://127.0.0.1:5500/front/html/confirmation.html")
-                url.searchParams.append('orderid', data.orderId)
-                console.log(url)
-                window.location.assign(url)
-                }
-            )
-            .catch(
-                function (error) {
-                console.log(Error)
-                }
-            )
-        }
-            // sendOrder (contact, products)
-        }
-
-)
-
-function Contact (firstName, lastName, address, city, email) {
-    this.firstName = firstName;
-    this.lastName = lastName;
-    this.address = address;
-    this.city = city;
-    this.email = email;
-}
-
-function createContact () {
-    let contact = new Contact(firstName.value, lastName.value, address.value, city.value, email.value)
-    
-    contact = JSON.stringify(contact)
-    console.log(contact)
-    return contact
-}
-
+//Function to create product list for order
 function createProductList (){
     let productList = localStorage.getItem("product")
     productList = JSON.parse(productList)
@@ -383,56 +356,8 @@ function createProductList (){
     for (let product of productList){
         products.push(product.id)
     }
-    products = JSON.stringify(products)
-    console.log(products)
     return products
 }
 
-function sendOrder (contact, products){
-    fetch('http://localhost:3000/api/order', {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({contact, products})
-    })
-    .then(function (response) {
-        if (response.ok) {
-            return response = response.json()
-        }
-    })
-    .then (function (){console.log(response)}
-    )
-    .catch(
-        function (error) {
-        console.log(Error)
-        }
-    )
-}
-
-// fetch('http://localhost:3000/api/order', {
-//     method: 'POST',
-//     headers: {
-//         'Accept': 'application/json',
-//         'Content-Type': 'application/json',
-//     },
-//     body: contact, productList 
-// })
-
-// let result = await response.json()
-// console.log(result)
 
 
-//Request 
-
-// let response = await fetch('/article/fetch/post/user', {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json;charset=utf-8'
-//     },
-//     body: JSON.stringify(user)
-//   });
-  
-//   let result = await response.json();
-//   alert(result.message);

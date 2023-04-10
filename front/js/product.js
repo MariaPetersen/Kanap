@@ -82,7 +82,6 @@ function retrieveProductData() {
 function addNewProduct(array) {
     array.push(new Item(productId, productColors.value, itemQuantity.value))
     addToLocalStorage(array)
-    console.log(localStorage)
 }
 
 //Function to add to local storage 
@@ -127,7 +126,6 @@ function addItemsToCart() {
         if (redundantProduct) {
             addQuantityProduct(alreadyInCart, redundantProduct, itemQuantity)
             addToLocalStorage(alreadyInCart)
-            console.log(localStorage)
         }
 
         else {
