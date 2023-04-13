@@ -142,7 +142,7 @@ function addItemsToCart() {
             alert('Le produit est ajouté au panier !')
         }
     } else {
-        alert("Veuillez sélectionner des données valides");
+        alert("Veuillez sélectionner une couleur et une quantité entre 1 et 100");
     }
 }
 
