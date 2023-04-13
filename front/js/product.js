@@ -6,6 +6,7 @@ const productTitle = document.getElementById("title")
 const productPrice = document.getElementById("price")
 const productDescription = document.getElementById("description")
 const productColors = document.getElementById("colors")
+console.log(productColors.value)
 
 //DOM elements for add to cart 
 const addButton = document.getElementById("addToCart")
@@ -78,6 +79,7 @@ function retrieveProductData() {
             console.log(Error)
         })
 }
+
 //Function to add new product
 function addNewProduct(array) {
     array.push(new Item(productId, productColors.value, itemQuantity.value))
@@ -118,22 +120,29 @@ const addQuantityProduct = (array, product, itemQuantity) => {
 //Function to add items to cart
 function addItemsToCart() {
     retrieveLocalStorage()
+    console.log(productColors.value != "")
+    if (itemQuantity.value >= 1 && itemQuantity.value <= 100 && productColors.value != "")  {
+        if (alreadyInCart) {
+            
+            let redundantProduct = alreadyInCart.find(findId)
 
-    if (alreadyInCart) {
-        
-        let redundantProduct = alreadyInCart.find(findId)
+            if (redundantProduct) {
+                addQuantityProduct(alreadyInCart, redundantProduct, itemQuantity)
+                addToLocalStorage(alreadyInCart)
+                alert('Le produit est ajouté au panier !')
+            }
 
-        if (redundantProduct) {
-            addQuantityProduct(alreadyInCart, redundantProduct, itemQuantity)
-            addToLocalStorage(alreadyInCart)
+            else {
+                addNewProduct(alreadyInCart)
+                alert('Le produit est ajouté au panier !')
+            }
         }
-
         else {
-            addNewProduct(alreadyInCart)
+            addNewProduct(cart)
+            alert('Le produit est ajouté au panier !')
         }
-    }
-    else {
-        addNewProduct(cart)
+    } else {
+        alert("Veuillez sélectionner des données valides");
     }
 }
 

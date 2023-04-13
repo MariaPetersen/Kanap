@@ -6,7 +6,6 @@ function retrieveProductData() {
                 return response.json()
             }
         })
-
         .then(
             function addProducts(productData) {
                 if(cart){
@@ -23,7 +22,6 @@ function retrieveProductData() {
                 }
             }
         )
-        
         .catch(
             function (error) {
             console.log(Error)
@@ -66,18 +64,18 @@ order.addEventListener(
             .then(function (response) {
                 if (response.ok) {
                     return response.json()
-                }  
+                }    
                 
             })
             .then(function (data){
-                let url = new URL ("http://127.0.0.1:5500/front/html/confirmation.html")
-                url.searchParams.append('orderid', data.orderId)
-                window.location.assign(url)
+                // let url = new URL ("../front/html/cart.html")
+                // url.searchParams.append('orderid', data.orderId)
+                window.location.href = "./confirmation.html?orderid="+data.orderId;
                 }
             )
             .then(function() {
-            localStorage.clear()
-            })
+                localStorage.clear()
+                })
             .catch(
                 function (error) {
                 console.log(Error)
@@ -140,7 +138,7 @@ function addSettings(parent, quant){
 
 function addArticle(items, product, id, color, quantity){
     let article = items.appendChild(document.createElement('article'))
-    article.classList.add("cart_item")
+    article.classList.add("cart__item")
     article.setAttribute('data-id', id)
     article.setAttribute('data-color', color)
     addImage(article, product)
@@ -176,13 +174,13 @@ function addTotal (cart, productData, totalPriceAll, totalQuantityAll){
 //Functions for changing quantity 
 
 function findProductColor(element, i){
-    let productArticle = element[i].closest("article.cart_item")
+    let productArticle = element[i].closest("article.cart__item")
     let productColor = productArticle.getAttribute("data-color")
     return productColor
 }
 
 function findProductId(element, i){
-    let productArticle = element[i].closest("article.cart_item")
+    let productArticle = element[i].closest("article.cart__item")
     let productId = productArticle.getAttribute("data-id")
     return productId
 }
@@ -223,10 +221,14 @@ function changeQuantity(inputQuantity, productData, totalPriceAll, totalQuantity
             "change",
             (event) =>{
                 event.preventDefault()
-                setQuantity(thisInput)
-                let cartItem = findItemInCart(productId, productColor, cart)
-                updateStorageQuantity(cartItem, cart, thisInput)
-                addTotal (cart, productData, totalPriceAll, totalQuantityAll)
+                if(thisInput.value >= 1 && thisInput.value <= 100){
+                    setQuantity(thisInput)
+                    let cartItem = findItemInCart(productId, productColor, cart)
+                    updateStorageQuantity(cartItem, cart, thisInput)
+                    addTotal (cart, productData, totalPriceAll, totalQuantityAll)
+                } else {
+                    alert("Seulement une quantité entre 1 et 100 est acceptée")
+                }
             }
         )
     }
