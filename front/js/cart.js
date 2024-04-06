@@ -1,6 +1,6 @@
 
 function retrieveProductData() {
-    fetch("http://localhost:3000/api/products")
+    fetch("https://kanap-back-2uug.onrender.com/api/products")
         .then(function (response) {
             if (response.ok) {
                 return response.json()
@@ -44,7 +44,7 @@ order.addEventListener(
         ){
             const products = createProductList()
             
-            fetch('http://localhost:3000/api/products/order', {
+            fetch('https://kanap-back-2uug.onrender.com/api/products/order', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
