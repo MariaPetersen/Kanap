@@ -62,7 +62,7 @@ const changeColor = (productColors) => {
 
 //Retrieving data from API and adding it to DOM
 function retrieveProductData() {
-    fetch(`http://localhost:3000/api/products/${productId}`)
+    fetch(`https://kanap-back-2uug.onrender.com/api/products/${productId}`)
         .then(function (response) {
             if (response.ok) {
                 return response.json()
