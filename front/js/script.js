@@ -1,4 +1,4 @@
-const retrieveProductData = () => fetch("http://localhost:3000/api/products")
+const retrieveProductData = () => fetch("https://kanap-back-2uug.onrender.com/api/products")
 .then(function(res){
     if (res.ok){
         return res.json();
